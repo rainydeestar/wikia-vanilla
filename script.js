@@ -1,4 +1,8 @@
-document.getElementById("submit-button").addEventListener("click", function () {
+import { parser } from './parser.js';
+
+document.getElementById("my-text").addEventListener("input", function () {
 	const text = document.getElementById("my-text").value;
-	document.getElementById("result").textContent = text;
+	document.getElementById("result").innerHTML = parser(text);
 });
+
+console.log("Test");
