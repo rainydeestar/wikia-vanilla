@@ -30,6 +30,9 @@ export function parser(text) {
 		line = line.replace(/(?<!\\)\*(.*?)\*/gim, "<i>$1</i>");	// *italics*
 		line = line.replace(/(?<!\\)~~(.*?)~~/gim, "<s>$1</s>");	// ~~strikethrough~~
 		line = line.replace(/(?<!\\)__(.*?)__/gim, "<u>$1</u>");	// __underline__
+		line = line.replace(/(?<!\\)\`(.*?)\`/gim, "<code>$1</code>");	// `code`
+
+		line = line.replace(/(?<!\\)\[(.*?)\]\((.*?)\)/gim, "<a href=\"$2\">$1</a>");	// `code`
 
 		// BACKSLASHES (need to be at end)
 

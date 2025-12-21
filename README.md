@@ -17,6 +17,8 @@ Italics works with one asterisks, bold two:
 **Bold**
 ~~Strikethrough~~
 __Underline__
+`Inline codeblock`
+[Sentence](Link)
 ~~~~
 ## Lists
 Two types: Ordered and unordered. You can nest them however you want, but you should avoid misuing the syntax.
