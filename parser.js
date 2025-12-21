@@ -3,14 +3,13 @@ export function parser(text) {
 	const lines = text.split("\n");
 	let html = "";
 	const listType = [];
+	let tableRowOpen = false;
 
 	for (let line of lines) {
 		line = line.replace(/&/g, "&amp;");						// for & (needs to be first lol)
 
 		line = line.replace(/\</g, "&lt;");						// for <
 		line = line.replace(/\>/g, "&gt;");						// for >
-		line = line.replace(/\"/g, "&quot;");					// for ""
-		line = line.replace(/\'/g, "&apos;");					// for ''
 
 		line = line.replace(/^# (.*$)/, "<h1>$1</h1><hr>");		// # Heading 1
 		line = line.replace(/^#{2} (.*$)/, "<h2>$1</h2>");		// ## Heading 2
@@ -22,6 +21,8 @@ export function parser(text) {
 
 		line = listHandler(line, listType);						// Lists
 
+		[line, tableRowOpen] = tableHandler(line, tableRowOpen);						// Lists
+
 		line = line.replace(/^(?!<).+/gim, "<p>$&</p>");			// paragraph
 
 		// INLINE MARKUPS
@@ -31,6 +32,8 @@ export function parser(text) {
 		line = line.replace(/(?<!\\)~~(.*?)~~/gim, "<s>$1</s>");	// ~~strikethrough~~
 		line = line.replace(/(?<!\\)__(.*?)__/gim, "<u>$1</u>");	// __underline__
 		line = line.replace(/(?<!\\)\`(.*?)\`/gim, "<code>$1</code>");	// `code`
+
+		line = line.replace(/(?<!\\)\\n/gim, "</br>");					// \n
 
 		line = line.replace(/(?<!\\)\[(.*?)\]\((.*?)\)/gim, "<a href=\"$2\">$1</a>");	// `code`
 
@@ -81,4 +84,52 @@ function countPrefix(line) {
 	const prefixCount = line.match(regex)?.[0].length ?? 0;
 
 	return prefixCount;
+}
+
+function tableHandler(line, tableRowOpen){
+	let modifiedLine = line;
+	if (line.match(/^\{\|/)) {
+		modifiedLine = modifiedLine.slice(3);
+		modifiedLine = `<table ${modifiedLine}>`;
+
+	} else if (line.match(/^\|\}/)) {
+		modifiedLine = "</tr></table>";
+		tableRowOpen = false;
+
+	} else if (line.match(/^\|-/)) {
+		
+		if (tableRowOpen === false) {
+			modifiedLine = "<tr>"
+			tableRowOpen = true;
+
+		} else {
+			modifiedLine = "</tr><tr>"
+
+		}
+	} else if (line.match(/^! /)) {
+		modifiedLine = tableCutAndMarkup(line, 2, "th");
+
+	} else if (line.match(/^\| /)) {
+		modifiedLine = tableCutAndMarkup(line, 2, "td");
+
+	} else if (line.match(/^\|\+ /)) {
+		modifiedLine = tableCutAndMarkup(line, 3, "caption");
+	} 
+
+	return [modifiedLine, tableRowOpen];
+}
+
+function tableCutAndMarkup(line, prefix, markup){
+	let markupStart = "";
+	const markupEnd = `</${markup}>`;
+	let output = line.slice(prefix);
+	if (output.match(/(?<!\\)\|/)) {
+		markupStart = output.match(/^(.*?).{1}\|/)[1];
+		markupStart = `<${markup} ${markupStart}>`;
+		output = output.match(/\|.{1}(.*)$/)[1];
+	} else {
+		markupStart = `<${markup}>`;
+	}
+	output = `${markupStart}${output}${markupEnd}`;
+	return output;
 }
