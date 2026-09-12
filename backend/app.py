@@ -14,11 +14,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Creates the pings table if it doesn't exist yet. Fine for this
-# throwaway check; a real project would use Alembic migrations instead.
-Base.metadata.create_all(bind=engine)
-
-
 @app.get("/health")
 def health():
     return {"status": "ok"}
