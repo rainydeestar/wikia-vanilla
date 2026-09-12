@@ -19,3 +19,12 @@ class UserRegisterResponse(BaseModel):
     display_name: str
     status: UserStatus
     created_at: datetime
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
